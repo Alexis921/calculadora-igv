@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calculadora de IGV</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+
+    table th {
+      background-color: #f2f2f2;
+      text-align: left;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:not(:last-child) {
+      margin-right: 10px;
+    }
+
+    .result-container {
+      display: none;
+      margin-bottom: 20px;
+    }
+
+    .result-container h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculadora de IGV</h1>
+
+  <table>
+    <tr>
+      <th>BASE IMPONIBLE</th>
+      <td><input type="number" id="base-imponible" min="0"></td>
+    </tr>
+    <tr>
+      <th>IGV</th>
+      <td>
+        <select id="igv-option">
+          <option value="0.10">10%</option>
+          <option value="0.18">18%</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>MONTO TOTAL</th>
+      <td><input type="number" id="monto-total" disabled></td>
+    </tr>
+  </table>
+
+  <button id="calcular-btn">Calcular resultado</button>
+  <button id="limpiar-btn">Limpiar datos</button>
+  <button id="tabla-btn">Visualizar tabla</button>
+  <button id="exportar-btn">Exportar a TXT</button>
+
+  <div class="result-container">
+    <h2>Resultado</h2>
+    <table id="resultado-tabla">
+      <tr>
+        <th>Base Imponible</th>
+        <th>IGV</th>
+        <th>Tasa</th>
+        <th>Monto Total</th>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    const calcularBtn = document.getElementById('calcular-btn');
+    const limpiarBtn = document.getElementById('limpiar-btn');
+    const tablaBtn = document.getElementById('tabla-btn');
+    const exportarBtn = document.getElementById('exportar-btn');
+    const baseImponibleInput = document.getElementById('base-imponible');
+    const igvOption = document.getElementById('igv-option');
+    const montoTotalInput = document.getElementById('monto-total');
+    const resultadoTabla = document.getElementById('resultado-tabla');
+    const resultContainer = document.querySelector('.result-container');
+
+    calcularBtn.addEventListener('click', calcularResultado);
+    limpiarBtn.addEventListener('click', limpiarDatos);
+    tablaBtn.addEventListener('click', mostrarTabla);
+    exportarBtn.addEventListener('click', exportarTabla);
+
+    function calcularResultado() {
+      const baseImponible = parseFloat(baseImponibleInput.value);
+      const igvRate = parseFloat(igvOption.value);
+      const igv = baseImponible * igvRate;
+      const montoTotal = baseImponible + igv;
+
+      montoTotalInput.value = montoTotal.toFixed(2);
+
+      resultContainer.style.display = 'block';
+    }
+
+    function limpiarDatos() {
+      baseImponibleInput.value = '';
+      igvOption.value = '0.10';
+      montoTotalInput.value = '';
+      resultContainer.style.display = 'none';
+    }
+
+    function mostrarTabla() {
+      const baseImponible = baseImponibleInput.value;
+      const igvRate = parseFloat(igvOption.value);
+      const igv = (baseImponible * igvRate).toFixed(2);
+      const tasa = (igvRate * 100).toFixed(0);
+      const montoTotal = parseFloat(baseImponible) + parseFloat(igv);
+
+      const row = resultadoTabla.insertRow();
+      const cell1 = row.insertCell();
+      const cell2 = row.insertCell();
+      const cell3 = row.insertCell();
+      const cell4 = row.insertCell();
+      cell1.textContent = baseImponible;
+      cell2.textContent = igv;
+      cell3.textContent = tasa + "%";
+      cell4.textContent = montoTotal.toFixed(2);
+    }
+
+    function exportarTabla() {
+      let tablaTexto = '';
+      const filas = resultadoTabla.rows;
+
+      for (let i = 0; i < filas.length; i++) {
+        const celdas = filas[i].cells;
+        for (let j = 0; j < celdas.length; j++) {
+          tablaTexto += celdas[j].textContent + ' | ';
+        }
+        tablaTexto += '\n';
+      }
+
+      const elementoA = document.createElement('a');
+      elementoA.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(tablaTexto);
+      elementoA.download = 'tabla.txt';
+      elementoA.click();
+    }
+  </script>
+</body>
+</html>
